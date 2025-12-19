@@ -32,13 +32,17 @@ if uploaded_file is not None:
         
         # Column information
         with st.expander("📋 Column Details"):
+            # Calculate null counts properly
+            null_counts = df.isnull().sum()
+            non_null_counts = len(df) - null_counts
+            
             col_info = pd.DataFrame({
                 'Column': df.columns,
                 'Type': df.dtypes.astype(str),
-                'Non-Null': df.count().values,
-                'Null': df.isnull().sum().values
+                'Non-Null': non_null_counts.values,
+                'Null': null_counts.values
             })
-            st.dataframe(col_info, use_container_width=True)
+            st.dataframe(col_info, use_container_width=True, hide_index=True)
         
         # Convert to Excel
         st.subheader("Download Excel File")
