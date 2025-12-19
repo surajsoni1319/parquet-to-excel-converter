@@ -32,15 +32,27 @@ if uploaded_file is not None:
         
         # Column information
         with st.expander("📋 Column Details"):
-            # Calculate null counts properly
-            null_counts = df.isnull().sum()
-            non_null_counts = len(df) - null_counts
+            # Calculate null and empty counts properly
+            null_counts = []
+            non_null_counts = []
+            
+            for col in df.columns:
+                # Count actual nulls/NaN
+                null_count = df[col].isnull().sum()
+                
+                # For object columns, also count empty strings
+                if df[col].dtype == 'object':
+                    empty_count = (df[col] == '').sum()
+                    null_count += empty_count
+                
+                null_counts.append(null_count)
+                non_null_counts.append(len(df) - null_count)
             
             col_info = pd.DataFrame({
                 'Column': df.columns,
                 'Type': df.dtypes.astype(str),
-                'Non-Null': non_null_counts.values,
-                'Null': null_counts.values
+                'Non-Null': non_null_counts,
+                'Null': null_counts
             })
             st.dataframe(col_info, use_container_width=True, hide_index=True)
         
